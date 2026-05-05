@@ -35,21 +35,40 @@ my school doesn't allow any other programming language
 on the computers.
 """
 
-OAuthName = "SSH Key"
-OAuthDir = os.path.join(os.path.dirname(__file__), "OAuth.hid")
+OAuthName = "PAT (Personal Access Token)"
+
+filePath = os.path.dirname(__file__)
+OAuthDir = os.path.join(filePath, "OAuth.csv")
+gitIgnoreDir = os.path.join(filePath, ".gitignore")
 
 def CheckForOAuth():
-    hasOAuth = os.path.exists(OAuthDir)
+    hasOAuth = os.path.exists(OAuthDir) and os.path.exists(gitIgnoreDir)
     if not hasOAuth:
+        with open(gitIgnoreDir, 'w') as gitIgnore:
+            gitIgnore.writelines([
+                'projects',
+                os.path.basename(OAuthDir)
+            ])
+        
+        githubUsername = input("Please enter your GitHub username >>  ")
+        print("\nIf you don't have a PAT, go to: https://github.com/settings/personal-access-tokens")
         OAuth = input("Please enter your " + OAuthName + " >>  ")
         with open(OAuthDir, 'w') as file:
-            file.write(OAuth)
+            file.write(f"{githubUsername},{OAuth}")
         os.system("cls")
         print(HEADER)
 
 def Awake():
     print(HEADER)
     CheckForOAuth()
-    projectName = "Enter your project name >>  "
+    
+    projectName = input("Enter your project name >>  ")
+    projectDir = os.path.join(filePath, projectName)
+    
+    if os.path.exists(projectDir):
+        print("This project already exists!")
+        input()
+        return
+    os.mkdir(projectDir)
     
 Awake()
